@@ -65,6 +65,10 @@ def create_app(config_name=None):
         db.session.rollback()
         return jsonify({'error': 'Lỗi server. Vui lòng thử lại sau.'}), 500
 
+    @app.route('/health')
+    def health():
+        return {'status': 'ok'}, 200
+
     login_manager.login_view = 'auth.login'
     login_manager.login_message = 'Vui lòng đăng nhập để tiếp tục.'
     login_manager.login_message_category = 'warning'
