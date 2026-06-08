@@ -1,0 +1,57 @@
+{% extends "admin/base.html" %}
+{% block title %}Sản phẩm - Admin{% endblock %}
+{% block admin_content %}
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+    <h1 style="font-size:1.5rem;font-weight:800;color:var(--secondary);">📦 Quản lý sản phẩm</h1>
+    <a href="{{ url_for('admin.add_product') }}" class="btn btn-primary">+ Thêm sản phẩm</a>
+</div>
+
+<div class="card animate-in" style="padding:0;overflow:hidden;">
+    <div class="table-wrapper" style="border:none;border-radius:0;box-shadow:none;">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Danh mục</th>
+                    <th>Giá</th>
+                    <th>Tồn kho</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.id }}</td>
+                    <td style="font-weight:600;">{{ product.name }}</td>
+                    <td style="color:var(--text-secondary);">{{ product.category.name if product.category else '-' }}</td>
+                    <td style="font-weight:700;color:var(--primary);">{{ "{:,}".format(product.price).replace(",", ".") }}đ</td>
+                    <td>
+                        {% if product.available_keys > 10 %}
+                            <span class="product-stock stock-ok">{{ product.available_keys }}</span>
+                        {% elif product.available_keys > 0 %}
+                            <span class="product-stock stock-low">{{ product.available_keys }}</span>
+                        {% else %}
+                            <span class="product-stock stock-out">0</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge {% if product.is_active %}badge-completed{% else %}badge-expired{% endif %}">
+                            {{ '✅ Active' if product.is_active else '❌ Inactive' }}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:0.3rem;">
+                            <a href="{{ url_for('admin.manage_keys', product_id=product.id) }}" class="btn btn-secondary btn-sm" title="Thêm số lượng keys">➕ Thêm key</a>
+                            <a href="{{ url_for('admin.edit_product', product_id=product.id) }}" class="btn btn-secondary btn-sm">✏️</a>
+                            <a href="{{ url_for('admin.delete_product', product_id=product.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Xóa sản phẩm này?')">🗑️</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

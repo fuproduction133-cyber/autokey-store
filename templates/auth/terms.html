@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Điều khoản sử dụng - AutoKey Store{% endblock %}
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card animate-in" style="max-width:800px;">
+        <div class="auth-header">
+            <h2>Điều khoản sử dụng</h2>
+            <p>Cập nhật ngày 08/06/2026</p>
+        </div>
+        <div class="auth-body" style="font-size:0.95rem;line-height:1.8;max-height:70vh;overflow-y:auto;">
+            <h4>1. Chung</h4>
+            <p>Khi đăng ký tài khoản tại AutoKey Store, bạn đồng ý với các điều khoản sau. Nếu không đồng ý, vui lòng không sử dụng dịch vụ.</p>
+
+            <h4>2. Tài khoản</h4>
+            <ul>
+                <li>Bạn phải sử dụng thông tin thật khi đăng ký.</li>
+                <li>Bạn chịu trách nhiệm bảo mật mật khẩu và tài khoản của mình.</li>
+                <li>Bạn phải ít nhất 18 tuổi để tạo tài khoản.</li>
+                <li>Một người chỉ được phép tạo một tài khoản cá nhân.</li>
+            </ul>
+
+            <h4>3. Sản phẩm và giao dịch</h4>
+            <ul>
+                <li>Tất cả sản phẩm (key) đã mua không được hoàn tiền sau khi key được giao.</li>
+                <li>Key được giao tự động qua email ngay sau khi thanh toán được xác nhận.</li>
+                <li>Nếu key bị lỗi trong vòng 24h, liên hệ hỗ trợ để được kiểm tra và thay thế.</li>
+                <li>Key không được phép bán lại, chia sẻ hoặc chuyển giao cho người khác.</li>
+                <li>Giá sản phẩm có thể thay đổi bất kỳ lúc nào mà không cần thông báo trước.</li>
+            </ul>
+
+            <h4>4. Thanh toán</h4>
+            <ul>
+                <li>Thanh toán qua VietQR — AutoKey Store chỉ chấp nhận chuyển khoản qua QR code VietQR.</li>
+                <li>Đơn hàng sẽ bị hủy nếu không thanh toán trong vòng 15 phút.</li>
+                <li>Đơn hàng chỉ được xử lý khi thanh toán đã được xác nhận.</li>
+                <li>Phương thức thanh toán khác không được chấp nhận.</li>
+            </ul>
+
+            <h4>5. Trách nhiệm</h4>
+            <ul>
+                <li>AutoKey Store không chịu trách nhiệm nếu bạn sử dụng key không đúng cách.</li>
+                <li>AutoKey Store không chịu trách nhiệm với mất mật khẩu, lỗi phần cứng, phần mềm, hoặc bất kỳ trường hợp bất thường nào.</li>
+                <li>AutoKey Store bảo đảm key đã kiểm tra trước khi bán, nhưng không bảo đảm tương thích với mọi hệ thống.</li>
+            </ul>
+
+            <h4>6. Quyền sở hữu trí tuệ</h4>
+            <p>AutoKey Store giữ quyền thay đổi, tạm ngưng hoặc ngừng dịch vụ bất kỳ lúc nào. Tất cả nội dung trên trang web thuộc về AutoKey Store.</p>
+
+            <h4>7. Thay đổi điều khoản</h4>
+            <p>Chúng tôi có thể cập nhật điều khoản này bất kỳ lúc nào. Thông tin cập nhật sẽ được đưa trên đầu trang. Việc tiếp tục sử dụng sau khi thay đổi có nghĩa là bạn đồng ý với điều khoản mới.</p>
+
+            <h4>8. Liên hệ</h4>
+            <p>Nếu có thắc mắc về điều khoản sử dụng, vui lòng liên hệ qua trang <a href="{{ url_for('shop.settings') }}">Liên hệ</a>.</p>
+        </div>
+        <div class="auth-footer">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-outline-secondary btn-sm">Quay lại đăng ký</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

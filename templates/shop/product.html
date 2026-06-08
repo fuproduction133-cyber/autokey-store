@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} - AutoKey Store{% endblock %}
+{% block content %}
+<div class="container">
+    <!-- Breadcrumb -->
+    <div class="product-breadcrumb" style="margin-bottom:1rem;">
+        <a href="{{ url_for('shop.index') }}">Trang chủ</a>
+        <span>/</span>
+        {% if product.category %}
+        <a href="{{ url_for('shop.category', slug=product.category.slug) }}">{{ product.category.name }}</a>
+        <span>/</span>
+        {% endif %}
+        <span>{{ product.name }}</span>
+    </div>
+
+    <div class="product-detail-grid animate-in">
+        <!-- LEFT: Gallery -->
+        <div class="product-gallery">
+            <div class="product-main-img">
+                {% if product.image_url %}
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}"
+                         onerror="this.style.display='none';this.parentElement.innerHTML='🔑';">
+                {% else %}
+                    🔑
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- RIGHT: Info -->
+        <div class="product-info">
+            {% if product.category %}
+            <span style="display:inline-block;padding:0.2rem 0.8rem;border-radius:20px;font-size:0.72rem;font-weight:700;background:rgba(124,58,237,0.15);color:var(--primary-light);border:1px solid rgba(124,58,237,0.25);text-transform:uppercase;letter-spacing:0.5px;">
+                {{ product.category.name }}
+            </span>
+            {% endif %}
+
+            <h1 class="product-detail-title">{{ product.name }}</h1>
+
+            <div class="product-detail-price">
+                {{ "{:,}".format(product.price).replace(",", ".") }}đ
+            </div>
+
+            <div class="product-meta">
+                <div class="product-meta-item">
+                    <div class="dot"></div>
+                    <span>Tình trạng:
+                    {% if product.available_keys > 0 %}
+                        <strong style="color:#34d399;">Còn {{ product.available_keys }} key</strong>
+                    {% else %}
+                        <strong style="color:#f87171;">Hết hàng</strong>
+                    {% endif %}
+                    </span>
+                </div>
+                <div class="product-meta-item">
+                    <div class="dot"></div>
+                    <span>Giao hàng: <strong>Tự động 24/7</strong></span>
+                </div>
+                <div class="product-meta-item">
+                    <div class="dot"></div>
+                    <span>Bảo hành: <strong>Đầy đủ</strong></span>
+                </div>
+            </div>
+
+            <div class="product-buy-section">
+                <div style="display:flex;align-items:center;gap:0.5rem;color:var(--text-secondary);font-size:0.82rem;">
+                    💳 Thanh toán qua VietQR — Key tự động giao ngay
+                </div>
+                {% if current_user.is_authenticated %}
+                    {% if product.has_stock() %}
+                        <a href="{{ url_for('shop.buy', product_id=product.id) }}" class="btn btn-primary btn-lg" style="font-size:1rem;">
+                            🛒 Mua ngay — {{ "{:,}".format(product.price).replace(",", ".") }}đ
+                        </a>
+                    {% else %}
+                        <button class="btn btn-secondary btn-lg btn-block" disabled>❌ Hết hàng</button>
+                    {% endif %}
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}?next={{ url_for('shop.product_detail', slug=product.slug) }}" class="btn btn-primary btn-lg btn-block">
+                        🔐 Đăng nhập để mua
+                    </a>
+                {% endif %}
+            </div>
+
+            <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:var(--radius);padding:0.85rem 1rem;font-size:0.82rem;color:#34d399;display:flex;align-items:flex-start;gap:0.5rem;">
+                <span style="flex-shrink:0;">✅</span>
+                <div>
+                    <strong>Giao hàng tự động</strong> — Key sẽ hiển thị ngay sau khi bạn thanh toán thành công qua VietQR.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="card" style="margin-bottom:2rem;">
+        <div class="product-tabs">
+            <button class="product-tab active" onclick="switchTab('desc', this)">📋 Mô tả</button>
+            <button class="product-tab" onclick="switchTab('guide', this)">📖 Hướng dẫn</button>
+        </div>
+
+        <div id="tab-desc" class="tab-content active">
+            <div style="line-height:1.8;color:var(--text-secondary);font-size:0.9rem;">
+                {% if product.description %}
+                    {{ product.description | safe }}
+                {% else %}
+                    <p>Không có mô tả cho sản phẩm này. Liên hệ hỗ trợ để biết thêm chi tiết.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div id="tab-guide" class="tab-content">
+            <div style="line-height:1.8;color:var(--text-secondary);font-size:0.9rem;">
+                <ol style="padding-left:1.2rem;">
+                    <li style="margin-bottom:0.5rem;"><strong>Đăng nhập / Đăng ký</strong> tài khoản AutoKey Store.</li>
+                    <li style="margin-bottom:0.5rem;"><strong>Chọn sản phẩm</strong> và nhấn "Mua ngay".</li>
+                    <li style="margin-bottom:0.5rem;"><strong>Quét mã QR VietQR</strong> bằng ứng dụng ngân hàng.</li>
+                    <li style="margin-bottom:0.5rem;"><strong>Nhập đúng số tiền</strong> hiển thị trên màn hình.</li>
+                    <li style="margin-bottom:0.5rem;"><strong>Nội dung chuyển khoản:</strong> tự động điền mã đơn hàng.</li>
+                    <li style="margin-bottom:0.5rem;"><strong>Key sẽ tự động hiển thị</strong> sau khi thanh toán thành công.</li>
+                    <li><strong>Bảo hành:</strong> Nếu sản phẩm gặp lỗi, liên hệ hỗ trợ qua Discord hoặc email.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- RELATED PRODUCTS -->
+    {% if related %}
+    <div class="section">
+        <div class="section-header">
+            <h2 class="section-title">Sản phẩm liên quan</h2>
+        </div>
+        <div class="product-grid">
+            {% for rel in related %}
+            <a href="{{ url_for('shop.product_detail', slug=rel.slug) }}" class="product-card stagger-item">
+                <div class="product-card-img">
+                    {% if rel.image_url %}
+                        <img src="{{ rel.image_url }}" alt="{{ rel.name }}"
+                             onerror="this.style.display='none';this.parentElement.innerHTML='🔑';">
+                    {% else %}🔑{% endif %}
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">{{ rel.name }}</div>
+                    <div class="product-card-footer">
+                        <span class="product-price">{{ "{:,}".format(rel.price).replace(",", ".") }}đ</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function switchTab(name, btn) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.product-tab').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "admin/base.html" %}
+{% block title %}Quản lý Keys - Admin{% endblock %}
+{% block admin_content %}
+<div style="margin-bottom:1.5rem;">
+    <a href="{{ url_for('admin.products') }}" class="btn btn-secondary btn-sm">← Quay lại</a>
+    <h1 style="font-size:1.3rem;font-weight:800;color:var(--secondary);margin-top:0.5rem;">🔑 Keys: {{ product.name }}</h1>
+    <div style="display:flex;gap:1rem;margin-top:0.5rem;">
+        <span style="font-size:0.85rem;color:var(--success);font-weight:700;">✅ Còn {{ product.available_keys }} key</span>
+        <span style="font-size:0.85rem;color:var(--text-muted);">/ {{ product.stock }} tổng</span>
+    </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+    <div class="card animate-in">
+        <h3 class="card-title" style="margin-bottom:1rem;">➕ Thêm Keys mới</h3>
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label>Danh sách Keys (mỗi key một dòng)</label>
+                <textarea class="form-control" name="keys_text" rows="8" placeholder="XXXXX-XXXXX-XXXXX-XXXXX&#10;YYYYY-YYYYY-YYYYY-YYYYY"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Thêm Keys</button>
+        </form>
+    </div>
+
+    <div class="card animate-in">
+        <h3 class="card-title" style="margin-bottom:1rem;">📋 Danh sách Keys</h3>
+        <div style="max-height:400px;overflow-y:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for key in keys %}
+                    <tr>
+                        <td style="font-family:monospace;font-size:0.8rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ key.key_value }}</td>
+                        <td>
+                            {% if key.status == 'available' %}
+                                <span class="badge badge-completed">✅</span>
+                            {% elif key.status == 'sold' %}
+                                <span class="badge badge-pending">💰</span>
+                            {% else %}
+                                <span class="badge badge-expired">{{ key.status }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

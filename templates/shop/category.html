@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ category.name }} - AutoKey Store{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="page-header animate-in">
+        <h1>🎯 {{ category.name }}</h1>
+        {% if category.description %}
+        <p>{{ category.description }}</p>
+        {% endif %}
+    </div>
+
+    {% if products %}
+    <div class="product-grid">
+        {% for product in products %}
+        <a href="{{ url_for('shop.product_detail', slug=product.slug) }}" class="product-card stagger-item">
+            <div class="product-card-img">
+                {% if product.image_url %}
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}"
+                         onerror="this.style.display='none';this.parentElement.innerHTML='🔑';">
+                {% else %}
+                    🔑
+                {% endif %}
+            </div>
+            <div class="product-card-body">
+                {% if product.category %}
+                <div class="product-card-cat">{{ product.category.name }}</div>
+                {% endif %}
+                <div class="product-card-title">{{ product.name }}</div>
+                <div class="product-card-desc">{{ product.description or '' }}</div>
+                <div class="product-card-footer">
+                    <span class="product-price">{{ "{:,}".format(product.price).replace(",", ".") }}đ</span>
+                    {% if product.available_keys > 10 %}
+                        <span class="product-stock stock-ok">Còn {{ product.available_keys }}</span>
+                    {% elif product.available_keys > 0 %}
+                        <span class="product-stock stock-low">Còn {{ product.available_keys }}</span>
+                    {% else %}
+                        <span class="product-stock stock-out">Hết hàng</span>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📦</div>
+        <h3>Không có sản phẩm nào</h3>
+        <p>Danh mục này hiện chưa có sản phẩm.</p>
+        <a href="{{ url_for('shop.index') }}" class="btn btn-primary" style="margin-top:1rem;">Quay lại cửa hàng</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Đăng nhập - AutoKey Store{% endblock %}
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card animate-in">
+        <div class="auth-header">
+            <div class="auth-icon">🔑</div>
+            <h2>Chào mừng trở lại</h2>
+            <p>Đăng nhập vào tài khoản AutoKey Store</p>
+        </div>
+        <div class="auth-body">
+            <form method="POST" action="{{ url_for('auth.login') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="form-group">
+                    <label for="username">Tên đăng nhập hoặc Email</label>
+                    <input type="text" class="form-control" id="username" name="username"
+                           placeholder="Nhập tên đăng nhập hoặc email" required autofocus autocomplete="username">
+                    {% if form.username.errors %}
+                        <div class="form-error">{{ form.username.errors[0] }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mật khẩu</label>
+                    <input type="password" class="form-control" id="password" name="password"
+                           placeholder="Nhập mật khẩu" required autocomplete="current-password">
+                    {% if form.password.errors %}
+                        <div class="form-error">{{ form.password.errors[0] }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;">
+                    <input type="checkbox" id="remember" name="remember" style="width:16px;height:16px;accent-color:var(--primary-light);cursor:pointer;">
+                    <label for="remember" style="margin:0;font-size:0.875rem;font-weight:600;color:rgba(255,255,255,0.7);cursor:pointer;">Ghi nhớ đăng nhập</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg btn-block">Đăng nhập</button>
+            </form>
+
+            <div class="auth-footer">
+                Chưa có tài khoản? <a href="{{ url_for('auth.register') }}?popup=1" style="color:var(--primary-light);font-weight:700;">Đăng ký ngay</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

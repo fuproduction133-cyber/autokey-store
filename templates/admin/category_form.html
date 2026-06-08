@@ -1,0 +1,39 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ action }} - Admin{% endblock %}
+{% block admin_content %}
+<div style="max-width: 600px; margin: 0 auto;">
+    <div class="page-header animate-in" style="padding: 1.5rem 0;">
+        <a href="{{ url_for('admin.categories') }}" style="color: var(--text-muted);">← Quay lại</a>
+        <h1 style="font-size: 1.5rem; margin-top: 1rem;">{{ action }}</h1>
+    </div>
+    <form method="POST" class="card animate-in">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+            <label>Tên danh mục</label>
+            <input type="text" class="form-control" name="name" value="{{ form.name.data or '' }}" required>
+        </div>
+        <div class="form-group">
+            <label>Slug</label>
+            <input type="text" class="form-control" name="slug" value="{{ form.slug.data or '' }}" required>
+        </div>
+        <div class="form-group">
+            <label>Mô tả</label>
+            <textarea class="form-control" name="description" rows="3">{{ form.description.data or '' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label>Thứ tự</label>
+            <input type="number" class="form-control" name="sort_order" value="{{ form.sort_order.data or 0 }}">
+        </div>
+        <div class="form-group">
+            <label style="display:flex;align-items:center;gap:0.8rem;">
+                <label class="toggle-switch">
+                    <input type="checkbox" name="is_active" {% if form.is_active.data %}checked{% endif %}>
+                    <span class="toggle-slider"></span>
+                </label>
+                Kích hoạt
+            </label>
+        </div>
+        <button type="submit" class="btn btn-primary">Lưu</button>
+    </form>
+</div>
+{% endblock %}

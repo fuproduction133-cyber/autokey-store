@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}AutoKey Store - Mua key bản quyền, tài khoản premium{% endblock %}
+{% block content %}
+<div class="container">
+
+    <!-- HERO -->
+    {% if not search_q %}
+    <div class="hero animate-in">
+        <div class="hero-text">
+            <h1>
+                🔑 Mua <span class="highlight">Key Bản Quyền</span><br>
+                <span class="highlight2">Thanh Toán Tự Động</span>
+            </h1>
+            <p>Game, phần mềm, tài khoản premium — Giao key ngay sau khi thanh toán VietQR. An toàn, nhanh chóng, 24/7.</p>
+            <a href="#products" class="btn btn-primary btn-lg">🛒 Xem sản phẩm</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-secondary btn-lg">📝 Đăng ký ngay</a>
+            <div class="hero-badges">
+                <div class="hero-badge">⚡ Giao hàng tức thì</div>
+                <div class="hero-badge">🔒 Bảo mật cao</div>
+                <div class="hero-badge">🛡️ Bảo hành đầy đủ</div>
+                <div class="hero-badge">💬 Hỗ trợ 24/7</div>
+            </div>
+        </div>
+        <div class="hero-img">🎮</div>
+    </div>
+    {% endif %}
+
+    {% if search_q %}
+    <div class="page-header animate-in" style="margin-bottom:1.5rem;">
+        <h1 style="font-size:1.5rem;">🔍 Kết quả tìm kiếm: "<span style="color:#a78bfa;">{{ search_q }}</span>"</h1>
+        {% if not products %}<p>Không tìm thấy sản phẩm nào.</p>{% endif %}
+    </div>
+    {% endif %}
+
+    <!-- CATEGORIES -->
+    {% if categories %}
+    <div class="section animate-in">
+        <div class="section-header">
+            <h2 class="section-title">📂 Danh mục sản phẩm</h2>
+        </div>
+        <div class="category-grid">
+            {% for cat in categories %}
+            <a href="{{ url_for('shop.category', slug=cat.slug) }}"
+               class="category-card {% if 'game' in cat.slug.lower() %}cat-game{% elif 'software' in cat.slug.lower() %}cat-software{% elif 'service' in cat.slug.lower() %}cat-service{% elif 'learn' in cat.slug.lower() %}cat-learning{% elif 'entertain' in cat.slug.lower() %}cat-entertain{% elif 'antivirus' in cat.slug.lower() %}cat-antivirus{% else %}cat-other{% endif %}">
+                <div class="cat-icon">
+                    {% if 'game' in cat.slug.lower() %}🎮
+                    {% elif 'software' in cat.slug.lower() %}💻
+                    {% elif 'service' in cat.slug.lower() %}⚡
+                    {% elif 'learn' in cat.slug.lower() %}📚
+                    {% elif 'entertain' in cat.slug.lower() %}🎬
+                    {% elif 'antivirus' in cat.slug.lower() %}🛡️
+                    {% elif 'work' in cat.slug.lower() or 'lam viec' in cat.slug.lower() %}💼
+                    {% else %}📦{% endif %}
+                </div>
+                <div class="cat-name">{{ cat.name }}</div>
+                <div class="cat-count">{{ cat.products.count() }} sản phẩm</div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- FEATURED PRODUCTS -->
+    {% if products %}
+    <div class="section" id="products">
+        <div class="section-header">
+            <h2 class="section-title">⭐ Sản phẩm nổi bật</h2>
+            <a href="#" class="section-more">Xem tất cả →</a>
+        </div>
+        <div class="product-grid">
+            {% for product in products[:8] %}
+            <a href="{{ url_for('shop.product_detail', slug=product.slug) }}" class="product-card stagger-item">
+                <div class="product-card-img">
+                    {% if product.image_url %}
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}"
+                             onerror="this.style.display='none';this.parentElement.innerHTML='🔑';">
+                    {% else %}
+                        🔑
+                    {% endif %}
+                    {% if loop.index <= 2 %}
+                    <div class="card-tag card-tag-hot">🔥 HOT</div>
+                    {% endif %}
+                </div>
+                <div class="product-card-body">
+                    {% if product.category %}
+                    <div class="product-card-cat">{{ product.category.name }}</div>
+                    {% endif %}
+                    <div class="product-card-title">{{ product.name }}</div>
+                    <div class="product-card-desc">{{ product.description or '' }}</div>
+                    <div class="product-card-footer">
+                        <div>
+                            <span class="product-price">{{ "{:,}".format(product.price).replace(",", ".") }}đ</span>
+                        </div>
+                        {% if product.available_keys > 10 %}
+                            <span class="product-stock stock-ok">Còn {{ product.available_keys }}</span>
+                        {% elif product.available_keys > 0 %}
+                            <span class="product-stock stock-low">Còn {{ product.available_keys }}</span>
+                        {% else %}
+                            <span class="product-stock stock-out">Hết hàng</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- WHY CHOOSE US -->
+    <div class="section animate-in">
+        <div class="section-header">
+            <h2 class="section-title">✨ Tại sao chọn AutoKey?</h2>
+        </div>
+        <div class="why-grid">
+            <div class="why-card">
+                <div class="why-icon">⚡</div>
+                <h3>Giao hàng tức thì</h3>
+                <p>Nhận key ngay sau khi thanh toán, không cần chờ đợi. Hoàn toàn tự động 24/7.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">🔒</div>
+                <h3>Bảo mật tuyệt đối</h3>
+                <p>Thông tin được mã hóa, thanh toán qua VietQR an toàn và nhanh chóng.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">🛡️</div>
+                <h3>Bảo hành dài hạn</h3>
+                <p>Tất cả sản phẩm đều có bảo hành. Hỗ trợ qua Discord nếu gặp lỗi.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">💬</div>
+                <h3>Hỗ trợ 24/7</h3>
+                <p>Đội ngũ hỗ trợ sẵn sàng giải đáp mọi thắc mắc mọi lúc.</p>
+            </div>
+        </div>
+    </div>
+
+    {% if products and products|length > 8 %}
+    <div class="section animate-in">
+        <div class="section-header">
+            <h2 class="section-title">📦 Tất cả sản phẩm</h2>
+        </div>
+        <div class="product-grid">
+            {% for product in products[8:] %}
+            <a href="{{ url_for('shop.product_detail', slug=product.slug) }}" class="product-card stagger-item">
+                <div class="product-card-img">
+                    {% if product.image_url %}
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}"
+                             onerror="this.style.display='none';this.parentElement.innerHTML='🔑';">
+                    {% else %}
+                        🔑
+                    {% endif %}
+                </div>
+                <div class="product-card-body">
+                    {% if product.category %}
+                    <div class="product-card-cat">{{ product.category.name }}</div>
+                    {% endif %}
+                    <div class="product-card-title">{{ product.name }}</div>
+                    <div class="product-card-desc">{{ product.description or '' }}</div>
+                    <div class="product-card-footer">
+                        <span class="product-price">{{ "{:,}".format(product.price).replace(",", ".") }}đ</span>
+                        {% if product.available_keys > 0 %}
+                            <span class="product-stock stock-ok">Còn {{ product.available_keys }}</span>
+                        {% else %}
+                            <span class="product-stock stock-out">Hết hàng</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not products %}
+    <div class="empty-state">
+        <div class="empty-icon">🔑</div>
+        <h3>Chưa có sản phẩm nào</h3>
+        <p>Hãy quay lại sau! Đa dạng key game, phần mềm, tài khoản premium đang chờ bạn.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

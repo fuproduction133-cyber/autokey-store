@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin - AutoKey Store{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%23C5321A'/><text y='.9em' x='50%' text-anchor='middle' font-size='55'>🔑</text></svg>">
+</head>
+<body>
+
+    <!-- TOPBAR -->
+    <div class="topbar" style="background:#C5321A;">
+        <div class="topbar-inner">
+            <div class="topbar-left">
+                <span>🔒 Quản trị AutoKey Store</span>
+            </div>
+            <div class="topbar-right">
+                <a href="{{ url_for('shop.settings') }}">⚙️ Cài đặt</a>
+                <a href="{{ url_for('auth.logout') }}">🚪 Đăng xuất</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN HEADER -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="{{ url_for('shop.index') }}" class="header-brand">
+                <div class="brand-logo">🔑</div>
+                <div class="brand-text">Auto<span>Key</span></div>
+            </a>
+            <div style="flex:1;text-align:center;font-weight:700;color:var(--text-secondary);font-size:0.9rem;">
+                ⚙️ Admin Panel
+            </div>
+            <div class="header-actions">
+                <a href="{{ url_for('auth.logout') }}" class="header-action">
+                    <div class="action-icon">🚪</div>
+                    <div class="action-label"><span>Đăng xuất</span></div>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container" style="padding-top:1rem;">
+        <div class="flash-messages">
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {% if category == 'success' %}✅{% elif category == 'danger' %}❌{% elif category == 'warning' %}⚠️{% else %}ℹ️{% endif %}
+                {{ message }}
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <div class="container">
+            <div class="admin-layout">
+                <aside class="admin-sidebar">
+                    <div class="sidebar-header">
+                        <span>⚙️</span> Quản trị
+                    </div>
+                    <nav>
+                        <a href="{{ url_for('admin.dashboard') }}" class="{% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+                            📊 Dashboard
+                        </a>
+
+                        <!-- Quản lý Dropdown -->
+                        <div class="sidebar-dropdown">
+                            <div class="sidebar-dropdown-toggle {% if 'product' in request.endpoint or 'categor' in request.endpoint or 'user' in request.endpoint or 'order' in request.endpoint %}active{% endif %}">
+                                📂 Quản lý
+                                <span class="sidebar-dropdown-arrow">▶</span>
+                            </div>
+                            <div class="sidebar-dropdown-menu">
+                                <a href="{{ url_for('admin.products') }}" class="{% if 'product' in request.endpoint or 'key' in request.endpoint %}active{% endif %}">
+                                    📦 Sản phẩm & Keys
+                                </a>
+                                <a href="{{ url_for('admin.categories') }}" class="{% if 'categor' in request.endpoint %}active{% endif %}">
+                                    🏷️ Danh mục
+                                </a>
+                                <a href="{{ url_for('admin.users') }}" class="{% if 'user' in request.endpoint %}active{% endif %}">
+                                    👥 Người dùng
+                                </a>
+                                <a href="{{ url_for('admin.orders') }}" class="{% if 'order' in request.endpoint %}active{% endif %}">
+                                    🧾 Đơn hàng
+                                </a>
+                            </div>
+                        </div>
+
+                        <a href="{{ url_for('shop.settings') }}" class="{% if 'settings' in request.endpoint %}active{% endif %}">
+                            ⚙️ Cài đặt
+                        </a>
+                    </nav>
+                </aside>
+                <div class="admin-main">
+                    {% block admin_content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

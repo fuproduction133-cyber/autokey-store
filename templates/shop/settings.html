@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Cài đặt - AutoKey Store{% endblock %}
+{% block content %}
+<div class="container" style="max-width:600px;">
+    <div class="page-header animate-in">
+        <h1>Cài đặt tài khoản</h1>
+        <p>Quản lý thông tin và bảo mật tài khoản</p>
+    </div>
+
+    <!-- Account Info -->
+    <div class="card animate-in" style="margin-bottom:1rem;">
+        <div class="card-header">
+            <h3 class="card-title">👤 Thông tin tài khoản</h3>
+        </div>
+        <div style="display:grid;gap:0.75rem;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:var(--radius);padding:0.75rem 1rem;">
+                    <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.25rem;">Tên đăng nhập</div>
+                    <div style="font-weight:700;">{{ current_user.username }}</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:var(--radius);padding:0.75rem 1rem;">
+                    <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.25rem;">Email</div>
+                    <div style="font-size:0.85rem;word-break:break-all;">{{ current_user.email }}</div>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:var(--radius);padding:0.75rem 1rem;">
+                    <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.25rem;">Ngày tham gia</div>
+                    <div>{{ current_user.created_at.strftime('%d/%m/%Y') }}</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:var(--radius);padding:0.75rem 1rem;">
+                    <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.25rem;">Vai trò</div>
+                    {% if current_user.is_admin %}
+                        <span class="badge badge-admin">👑 Quản trị viên</span>
+                    {% else %}
+                        <span class="badge badge-pending">👤 Người dùng</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password -->
+    <div class="card animate-in">
+        <div class="card-header">
+            <h3 class="card-title">🔐 Đổi mật khẩu</h3>
+            <a href="{{ url_for('auth.change_password') }}" class="btn btn-primary btn-sm">Đổi mật khẩu</a>
+        </div>
+        <p style="color:var(--text-secondary);font-size:0.85rem;">
+            Bảo mật tài khoản bằng cách đặt mật khẩu mạnh. Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường và số.
+        </p>
+    </div>
+</div>
+{% endblock %}

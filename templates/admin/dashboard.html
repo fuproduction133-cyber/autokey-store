@@ -1,0 +1,139 @@
+{% extends "admin/base.html" %}
+{% block title %}Dashboard - AutoKey Admin{% endblock %}
+{% block admin_content %}
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+    <div>
+        <h1 style="font-size:1.5rem;font-weight:800;color:var(--secondary);">📊 Tổng quan</h1>
+    </div>
+    <div style="font-size:0.82rem;color:var(--text-muted);text-align:right;">
+        {{ now.strftime('%d/%m/%Y %H:%M') }}
+    </div>
+</div>
+
+<!-- Stats Row 1: Core Metrics -->
+<div class="stats-grid animate-in">
+    <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value">{{ total_users }}</div>
+        <div class="stat-label">Người dùng</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">📦</div>
+        <div class="stat-value">{{ total_orders }}</div>
+        <div class="stat-label">Tổng đơn hàng</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">{{ completed_orders }}</div>
+        <div class="stat-label">Hoàn thành</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-value">{{ pending_orders }}</div>
+        <div class="stat-label">Đang chờ</div>
+    </div>
+    <div class="stat-card highlight">
+        <div class="stat-icon" style="font-size:1.5rem;">💰</div>
+        <div class="stat-value">{{ "{:,.0f}".format(stats.today_revenue / 1000000) }}M</div>
+        <div class="stat-label">Doanh thu hôm nay</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🔑</div>
+        <div class="stat-value">{{ total_products }}</div>
+        <div class="stat-label">Sản phẩm</div>
+    </div>
+</div>
+
+<!-- Stats Row 2: Revenue & Alerts -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-top:1rem;">
+    <div class="card animate-in" style="padding:1.25rem;text-align:center;">
+        <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Tổng doanh thu</div>
+        <div style="font-size:1.5rem;font-weight:800;color:var(--primary);margin-top:0.5rem;">
+            {{ "{:,.0f}".format(stats.total_revenue).replace(",", ".") }}đ
+        </div>
+    </div>
+
+    {% if stats.out_of_stock > 0 %}
+    <div class="card animate-in" style="padding:1.25rem;text-align:center;border:1px solid #ef4444;">
+        <div style="font-size:0.8rem;color:#ef4444;text-transform:uppercase;letter-spacing:0.05em;">⚠️ Hết hàng</div>
+        <div style="font-size:1.5rem;font-weight:800;color:#ef4444;margin-top:0.5rem;">
+            {{ stats.out_of_stock }} sản phẩm
+        </div>
+        <a href="{{ url_for('admin.products') }}" class="btn btn-sm" style="margin-top:0.75rem;background:#ef4444;color:#fff;border:none;">
+            Xem ngay →
+        </a>
+    </div>
+    {% else %}
+    <div class="card animate-in" style="padding:1.25rem;text-align:center;border:1px solid #10b981;">
+        <div style="font-size:0.8rem;color:#10b981;text-transform:uppercase;letter-spacing:0.05em;">✓ Kho hàng</div>
+        <div style="font-size:1.5rem;font-weight:800;color:#10b981;margin-top:0.5rem;">
+            Tất cả còn hàng
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Quick Actions -->
+<div style="margin-top:1.5rem;">
+    <h2 style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:0.75rem;">⚡ Thao tác nhanh</h2>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <a href="{{ url_for('admin.add_product') }}" class="btn btn-primary">+ Thêm sản phẩm</a>
+        <a href="{{ url_for('admin.products') }}" class="btn btn-secondary">📦 Sản phẩm</a>
+        <a href="{{ url_for('admin.categories') }}" class="btn btn-secondary">🏷️ Danh mục</a>
+        <a href="{{ url_for('admin.users') }}" class="btn btn-secondary">👥 Người dùng</a>
+        <a href="{{ url_for('admin.orders') }}" class="btn btn-secondary">🧾 Đơn hàng</a>
+    </div>
+</div>
+
+<!-- Recent Orders -->
+<div class="card animate-in" style="margin-top:1.5rem;">
+    <div class="card-header">
+        <h2 class="card-title">🧾 Đơn hàng gần đây</h2>
+        <a href="{{ url_for('admin.orders') }}" class="btn btn-secondary btn-sm">Xem tất cả →</a>
+    </div>
+    {% if recent_orders %}
+    <div class="table-wrapper" style="border:none;border-radius:0;box-shadow:none;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Sản phẩm</th>
+                    <th>Số tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in recent_orders %}
+                <tr>
+                    <td><code style="background:#f3f4f6;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.8rem;">{{ order.order_code }}</code></td>
+                    <td style="font-weight:600;">{{ order.user.username }}</td>
+                    <td>{{ order.product.name if order.product else 'N/A' }}</td>
+                    <td style="font-weight:700;color:var(--primary);">{{ "{:,}".format(order.amount).replace(",", ".") }}đ</td>
+                    <td>
+                        <span class="badge badge-{{ order.payment_status }}">
+                            {% if order.payment_status == 'pending' %}⏳ Chờ
+                            {% elif order.payment_status == 'completed' %}✅ Xong
+                            {% elif order.payment_status == 'expired' %}⏰ Hết hạn
+                            {% else %}{{ order.payment_status }}{% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        {% if order.payment_status == 'pending' %}
+                        <a href="{{ url_for('admin.manual_complete', order_id=order.id) }}" class="btn btn-success btn-sm" onclick="return confirm('Xác nhận đơn đã thanh toán?')">✓ Xác nhận</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state" style="padding:2rem;">
+        <div style="font-size:2rem;">📦</div>
+        <h3>Chưa có đơn hàng nào</h3>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

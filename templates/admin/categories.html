@@ -1,0 +1,47 @@
+{% extends "admin/base.html" %}
+{% block title %}Danh mục - Admin{% endblock %}
+{% block admin_content %}
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+    <h1 style="font-size:1.5rem;font-weight:800;color:var(--secondary);">🏷️ Quản lý danh mục</h1>
+    <div style="display:flex;gap:0.5rem;">
+        <a href="{{ url_for('admin.add_category') }}" class="btn btn-primary">+ Thêm</a>
+        <a href="{{ url_for('admin.products') }}" class="btn btn-secondary btn-sm">Sản phẩm</a>
+    </div>
+</div>
+
+<div class="card animate-in" style="padding:0;overflow:hidden;">
+    <div class="table-wrapper" style="border:none;border-radius:0;box-shadow:none;">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên</th>
+                    <th>Slug</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat in categories %}
+                <tr>
+                    <td>{{ cat.id }}</td>
+                    <td style="font-weight:600;">{{ cat.name }}</td>
+                    <td><code style="background:#f3f4f6;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.8rem;">{{ cat.slug }}</code></td>
+                    <td>
+                        <span class="badge {% if cat.is_active %}badge-completed{% else %}badge-expired{% endif %}">
+                            {{ '✅ Active' if cat.is_active else '❌ Inactive' }}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:0.3rem;">
+                            <a href="{{ url_for('admin.edit_category', cat_id=cat.id) }}" class="btn btn-secondary btn-sm">✏️</a>
+                            <a href="{{ url_for('admin.delete_category', cat_id=cat.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Xóa danh mục này?')">🗑️</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

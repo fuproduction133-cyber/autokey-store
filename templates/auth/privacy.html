@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Chính sách bảo mật - AutoKey Store{% endblock %}
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card animate-in" style="max-width:800px;">
+        <div class="auth-header">
+            <h2>Chính sách bảo mật</h2>
+            <p>Cập nhật ngày 08/06/2026</p>
+        </div>
+        <div class="auth-body" style="font-size:0.95rem;line-height:1.8;max-height:70vh;overflow-y:auto;">
+            <h4>1. Thông tin thu thập</h4>
+            <p>Chúng tôi thu thập các thông tin sau khi bạn đăng ký và sử dụng dịch vụ:</p>
+            <ul>
+                <li><strong>Tên đăng nhập và email:</strong> sử dụng để tạo tài khoản và liên hệ.</li>
+                <li><strong>Lịch sử giao dịch:</strong> ghi lại đơn hàng, sản phẩm đã mua để hỗ trợ khách hàng.</li>
+                <li><strong>Thông tin thanh toán:</strong> chỉ lưu mã giao dịch từ VietQR, không lưu thông tin thẻ ngân hàng.</li>
+                <li><strong>Địa chỉ IP:</strong> ghi lại để phát hiện truy cập bất thường và bảo vệ tài khoản.</li>
+            </ul>
+
+            <h4>2. Mục đích sử dụng</h4>
+            <ul>
+                <li>Xử lý đơn hàng và giao key tự động.</li>
+                <li>Hỗ trợ khách hàng và giải quyết khiếu nại.</li>
+                <li>Gửi thông báo về đơn hàng (qua email).</li>
+                <li>Phát hiện và ngăn chặn truy cập trái phép.</li>
+            </ul>
+
+            <h4>3. Bảo mật mật khẩu</h4>
+            <ul>
+                <li>Mật khẩu được mã hóa bằng bcrypt và không lưu ở dạng thuần.</li>
+                <li>Chúng tôi không bao giờ hỏi mật khẩu qua email hoặc điện thoại.</li>
+                <li>Nếu bạn nghĩ mật khẩu bị lộ, vui lòng đổi mật khẩu ngay.</li>
+            </ul>
+
+            <h4>4. Chia sẻ thông tin</h4>
+            <p>Chúng tôi <strong>không</strong> bán, chia sẻ hoặc chuyển giao thông tin cá nhân của bạn cho bất kỳ bên thứ ba nào, ngoại trừ:</p>
+            <ul>
+                <li>Khi được phép bởi pháp lý Việt Nam.</li>
+                <li>Khi cần thiết để xử lý giao dịch (ngân hàng xử lý thanh toán VietQR).</li>
+            </ul>
+
+            <h4>5. Lưu trữ và xóa dữ liệu</h4>
+            <ul>
+                <li>Dữ liệu được lưu trên máy chủ được bảo vệ bởi firewall và mã hóa.</li>
+                <li>Bạn có quyền yêu cầu xóa tài khoản và toàn bộ dữ liệu liên quan bằng cách liên hệ hỗ trợ.</li>
+                <li>Thông tin giao dịch có thể được lưu trữ 5 năm theo quy định tài chính.</li>
+            </ul>
+
+            <h4>6. Cookie</h4>
+            <p>Trang web sử dụng cookie để:</p>
+            <ul>
+                <li>Lưu phiên đăng nhập (remember me).</li>
+                <li>Duy trì trải nghiệm người dùng.</li>
+            </ul>
+
+            <h4>7. Liên hệ về bảo mật</h4>
+            <p>Nếu bạn phát hiện bất kỳ vấn đề bảo mật nào, vui lòng liên hệ ngay qua trang <a href="{{ url_for('shop.settings') }}">Liên hệ</a>.</p>
+        </div>
+        <div class="auth-footer">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-outline-secondary btn-sm">Quay lại đăng ký</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

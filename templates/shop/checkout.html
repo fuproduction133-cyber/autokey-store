@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}Thanh toán - AutoKey Store{% endblock %}
+{% block content %}
+<div class="container" style="max-width: 900px;">
+    <div class="page-header animate-in">
+        <h1>Thanh toán đơn hàng</h1>
+        <p>Quét mã QR VietQR — Key tự động giao ngay</p>
+    </div>
+
+    <div class="order-page-grid animate-in">
+        <!-- LEFT: Order Info -->
+        <div>
+            <div class="card" style="margin-bottom: 1rem;">
+                <div class="card-header">
+                    <h3 class="card-title">📦 Thông tin đơn hàng</h3>
+                </div>
+                <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem;">
+                    {% if product.image_url %}
+                        <img src="{{ product.image_url }}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;" onerror="this.style.display='none'">
+                    {% else %}
+                        <div style="width:72px;height:72px;background:rgba(255,255,255,0.05);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:2rem;">🔑</div>
+                    {% endif %}
+                    <div>
+                        <div style="font-weight:700;font-size:1rem;">{{ product.name }}</div>
+                        {% if product.category %}<div style="font-size:0.78rem;color:var(--text-muted);">{{ product.category.name }}</div>{% endif %}
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;font-size:0.85rem;">
+                    <div><span style="color:var(--text-muted);">Mã đơn:</span> <code style="background:rgba(124,58,237,0.1);padding:0.15rem 0.4rem;border-radius:4px;font-size:0.8rem;color:var(--primary-light);">{{ order.order_code }}</code></div>
+                    <div><span style="color:var(--text-muted);">Số tiền:</span> <strong style="color:var(--primary-light);">{{ "{:,}".format(order.vietqr_amount).replace(",", ".") }}đ</strong></div>
+                </div>
+                <div class="order-timer" style="margin-top:1rem;">
+                    ⏱️ Hết hạn: <span id="timer"></span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">📋 Hướng dẫn thanh toán</h3>
+                </div>
+                <ol style="color:var(--text-secondary);font-size:0.85rem;padding-left:1.2rem;line-height:2.2;">
+                    <li>Mở ứng dụng ngân hàng hoặc ví điện tử (MoMo, ZaloPay...)</li>
+                    <li>Quét mã QR VietQR bên phải hoặc chuyển khoản thủ công</li>
+                    <li>Nhập đúng số tiền: <strong style="color:var(--primary-light);">{{ "{:,}".format(order.vietqr_amount).replace(",", ".") }} VND</strong></li>
+                    <li>Nội dung: <strong style="color:#fff;font-family:monospace;">{{ order.order_code }}</strong></li>
+                    <li>Key sẽ tự động hiển thị bên dưới sau khi thanh toán</li>
+                </ol>
+                <div style="background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.2);border-radius:6px;padding:0.75rem;margin-top:0.75rem;font-size:0.82rem;color:#fbbf24;display:flex;gap:0.5rem;align-items:flex-start;">
+                    <span>⚠️</span>
+                    <span>Vui lòng nhập đúng <strong>nội dung chuyển khoản</strong> là mã đơn hàng để hệ thống tự động nhận diện.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: QR Payment -->
+        <div>
+            <div class="card" style="text-align:center;">
+                <div class="card-header" style="justify-content:center;">
+                    <h3 class="card-title">📱 Thanh toán VietQR</h3>
+                </div>
+
+                <div id="payment-status" class="payment-status-indicator" style="justify-content:center;margin-bottom:1rem;">
+                    <div class="dot pending" id="status-dot"></div>
+                    <span id="status-text" style="color:#fbbf24;">Đang chờ thanh toán...</span>
+                </div>
+
+                <div class="qr-section" style="margin-bottom:1rem;">
+                    <div style="color:#64748b;font-size:0.8rem;font-weight:600;">Số tiền thanh toán</div>
+                    <div class="qr-amount">
+                        {{ "{:,}".format(order.vietqr_amount).replace(",", ".") }}đ
+                    </div>
+                    <div style="color:#64748b;font-size:0.8rem;">Nội dung: <strong style="font-family:monospace;color:#fff;">{{ order.order_code }}</strong></div>
+                    <div id="qr-container" style="margin-top:1rem;min-height:200px;display:flex;align-items:center;justify-content:center;">
+                        <div style="display:flex;align-items:center;justify-content:center;gap:8px;color:#64748b;font-size:0.85rem;">
+                            <div class="loading"></div>
+                            Đang tạo mã QR...
+                        </div>
+                    </div>
+                </div>
+
+                <div id="key-display-area" style="display:none;">
+                    <div class="alert alert-success" style="text-align:center;font-weight:700;">
+                        ✅ Thanh toán thành công! Key của bạn:
+                    </div>
+                    <div class="key-display" id="key-value"></div>
+                    <button class="btn btn-secondary" style="margin-top:0.75rem;" onclick="copyKey()">📋 Sao chép Key</button>
+                </div>
+
+                <div id="expired-area" style="display:none;">
+                    <div class="alert alert-danger" style="text-align:center;">
+                        ⏰ Đơn hàng đã hết hạn. Vui lòng tạo đơn mới.
+                    </div>
+                    <a href="{{ url_for('shop.product_detail', slug=product.slug) }}" class="btn btn-primary btn-block">Tạo đơn mới</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const ORDER_CODE = "{{ order.order_code }}";
+const EXPIRES_AT = new Date("{{ order.expires_at.isoformat() }}Z").getTime();
+let pollInterval;
+let timerInterval;
+
+async function loadQR() {
+    try {
+        const resp = await fetch(`/api/vietqr?amount={{ order.vietqr_amount }}&order_code={{ order.order_code }}&_=${Date.now()}`);
+        const data = await resp.json();
+        const container = document.getElementById('qr-container');
+        if (data.qr_image) {
+            container.innerHTML = `<img src="${data.qr_image}" alt="QR Code" style="max-width:260px;border-radius:8px;margin:0 auto;display:block;">`;
+        } else if (data.qr_url) {
+            container.innerHTML = `<img src="${data.qr_url}" alt="QR Code" style="max-width:260px;border-radius:8px;margin:0 auto;display:block;">`;
+        } else {
+            container.innerHTML = `<div style="color:#64748b;font-size:0.85rem;padding:1rem;">Cấu hình VietQR trong .env<br><strong>Mã đơn: ${ORDER_CODE}</strong><br>Số tiền: {{ "{:,}".format(order.vietqr_amount).replace(",", ".") }}đ</div>`;
+        }
+    } catch(e) {
+        document.getElementById('qr-container').innerHTML = `<div style="color:#64748b;font-size:0.85rem;padding:1rem;">QR tạm thời không khả dụng<br><strong>Mã: ${ORDER_CODE}</strong></div>`;
+    }
+}
+
+function updateTimer() {
+    const now = Date.now();
+    const remaining = Math.max(0, EXPIRES_AT - now);
+    const minutes = Math.floor(remaining / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
+    const el = document.getElementById('timer');
+    if (el) el.textContent = `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+    if (remaining === 0) {
+        clearInterval(timerInterval);
+        clearInterval(pollInterval);
+        document.getElementById('status-text').textContent = 'Đơn hàng đã hết hạn';
+        document.getElementById('status-dot').className = 'dot expired';
+        document.getElementById('expired-area').style.display = 'block';
+    }
+}
+
+async function checkPayment() {
+    try {
+        const resp = await fetch(`/api/order/${ORDER_CODE}/poll-payment`);
+        const data = await resp.json();
+        if (data.status === 'completed') {
+            clearInterval(pollInterval);
+            clearInterval(timerInterval);
+            document.getElementById('status-text').textContent = 'Thanh toán thành công!';
+            document.getElementById('status-dot').className = 'dot completed';
+            if (data.key) {
+                document.getElementById('key-value').textContent = data.key;
+                document.getElementById('key-display-area').style.display = 'block';
+            }
+        } else if (data.status === 'expired') {
+            clearInterval(pollInterval);
+            clearInterval(timerInterval);
+            document.getElementById('status-text').textContent = 'Đơn hàng đã hết hạn';
+            document.getElementById('status-dot').className = 'dot expired';
+            document.getElementById('expired-area').style.display = 'block';
+        }
+    } catch(e) {}
+}
+
+function copyKey() {
+    navigator.clipboard.writeText(document.getElementById('key-value').textContent).then(() => {
+        alert('Đã sao chép key!');
+    });
+}
+
+loadQR();
+updateTimer();
+timerInterval = setInterval(updateTimer, 1000);
+pollInterval = setInterval(checkPayment, 5000);
+</script>
+{% endblock %}

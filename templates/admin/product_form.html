@@ -1,0 +1,264 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ action }} - Admin{% endblock %}
+
+{% block styles %}
+<style>
+.img-preview-box {
+    width: 100%;
+    height: 220px;
+    border-radius: 12px;
+    border: 2px dashed rgba(124,58,237,0.4);
+    background-color: rgba(124,58,237,0.06);
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+    overflow: hidden;
+}
+.img-preview-box:hover {
+    border-color: rgba(124,58,237,0.8);
+    background-color: rgba(124,58,237,0.1);
+}
+.img-preview-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    text-align: center;
+    padding: 1rem;
+}
+.upload-zone {
+    width: 100%;
+    height: 220px;
+    border-radius: 12px;
+    border: 2px dashed rgba(124,58,237,0.5);
+    background: rgba(124,58,237,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.upload-zone-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #8b5cf6;
+}
+</style>
+{% endblock %}
+
+{% block admin_content %}
+<div style="max-width:700px;">
+    <div style="margin-bottom:1.5rem;">
+        <a href="{{ url_for('admin.products') }}" class="btn btn-secondary btn-sm">← Quay lại</a>
+        <h1 style="font-size:1.3rem;font-weight:800;color:#fff;margin-top:0.5rem;">{{ action }}</h1>
+    </div>
+
+    {% set current_image = product.image_url if product else '' %}
+
+    <form method="POST" class="card animate-in" id="productForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="image_url" id="imageUrlInput" value="{{ current_image or '' }}">
+
+        <div class="form-group">
+            <label>Tên sản phẩm</label>
+            <input type="text" class="form-control" name="name" value="{{ form.name.data or '' }}" required>
+            {% if form.name.errors %}<div class="form-error">{{ form.name.errors[0] }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label>Slug (URL)</label>
+            <input type="text" class="form-control" name="slug" value="{{ form.slug.data or '' }}" placeholder=" VD: steam-wallet-100k">
+            {% if form.slug.errors %}<div class="form-error">{{ form.slug.errors[0] }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label>Mô tả</label>
+            <textarea class="form-control" name="description" rows="4">{{ form.description.data or '' }}</textarea>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="form-group">
+                <label>Giá (VND)</label>
+                <input type="number" class="form-control" name="price" value="{{ form.price.data or '' }}" min="1000" required>
+                {% if form.price.errors %}<div class="form-error">{{ form.price.errors[0] }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+                <label>Số lượng key ban đầu</label>
+                <input type="number" class="form-control" name="stock" value="{{ form.stock.data or 0 }}" min="0">
+                {% if form.stock.errors %}<div class="form-error">{{ form.stock.errors[0] }}</div>{% endif %}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Danh mục</label>
+            <select class="form-control" name="category_id">
+                <option value="0">-- Không chọn --</option>
+                {% for c in form.category_id.choices[1:] %}
+                <option value="{{ c[0] }}" {% if (product and product.category_id == c[0]) or (not product and form.category_id.data == c[0]) %}selected{% endif %}>{{ c[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- IMAGE UPLOAD -->
+        <div class="form-group">
+            <label>Ảnh sản phẩm</label>
+
+            <div id="imagePreview" class="img-preview-box" style="{% if current_image %}background-image:url('{{ current_image }}');{% endif %}">
+                {% if not current_image %}
+                <div class="img-preview-placeholder" id="imgPlaceholder">
+                    <span style="font-size:2rem;">🖼️</span>
+                    <span style="font-size:0.8rem;color:#aaa;margin-top:0.25rem;">Kéo ảnh vào đây hoặc bấm để chọn</span>
+                    <span style="font-size:0.7rem;color:#666;margin-top:0.15rem;">JPG, PNG, WEBP, GIF — tối đa 5MB — auto resize 600×600</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div id="uploadZone" class="upload-zone" style="display:none;">
+                <div class="upload-zone-inner">
+                    <span style="font-size:2rem;">⏳</span>
+                    <span>Đang tải ảnh lên...</span>
+                </div>
+            </div>
+
+            <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none;">
+
+            <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;">
+                <button type="button" class="btn btn-secondary btn-sm" id="selectImageBtn">📁 Chọn ảnh</button>
+                {% if current_image %}
+                <button type="button" class="btn btn-sm" id="removeImageBtn" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);color:#fca5a5;">🗑️ Xóa ảnh</button>
+                {% endif %}
+            </div>
+            <div id="uploadError" class="form-error" style="display:none;margin-top:0.4rem;"></div>
+            <div id="uploadSuccess" style="display:none;color:#86efac;font-size:0.78rem;margin-top:0.4rem;">✅ Ảnh đã tải lên thành công!</div>
+        </div>
+
+        <div style="display:flex;gap:0.75rem;">
+            <button type="submit" class="btn btn-primary" id="submitBtn">💾 Lưu</button>
+            <a href="{{ url_for('admin.products') }}" class="btn btn-secondary">Hủy</a>
+        </div>
+    </form>
+</div>
+
+<script>
+(function() {
+    var fileInput = document.getElementById('fileInput');
+    var previewBox = document.getElementById('imagePreview');
+    var placeholder = document.getElementById('imgPlaceholder');
+    var imageUrlInput = document.getElementById('imageUrlInput');
+    var uploadZone = document.getElementById('uploadZone');
+    var uploadError = document.getElementById('uploadError');
+    var uploadSuccess = document.getElementById('uploadSuccess');
+    var selectBtn = document.getElementById('selectImageBtn');
+    var removeBtn = document.getElementById('removeImageBtn');
+    var submitBtn = document.getElementById('submitBtn');
+
+    function showError(msg) {
+        uploadError.textContent = msg;
+        uploadError.style.display = 'block';
+        uploadSuccess.style.display = 'none';
+    }
+    function showSuccess() {
+        uploadError.style.display = 'none';
+        uploadSuccess.style.display = 'block';
+    }
+    function hideStatus() {
+        uploadError.style.display = 'none';
+        uploadSuccess.style.display = 'none';
+    }
+
+    if (previewBox) previewBox.addEventListener('click', function() { fileInput.click(); });
+    if (selectBtn) selectBtn.addEventListener('click', function() { fileInput.click(); });
+
+    if (previewBox) {
+        previewBox.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            previewBox.style.borderColor = '#8b5cf6';
+            previewBox.style.backgroundColor = 'rgba(124,58,237,0.15)';
+        });
+        previewBox.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            previewBox.style.borderColor = '';
+            previewBox.style.backgroundColor = '';
+        });
+        previewBox.addEventListener('drop', function(e) {
+            e.preventDefault();
+            previewBox.style.borderColor = '';
+            previewBox.style.backgroundColor = '';
+            var files = e.dataTransfer.files;
+            if (files.length > 0) uploadFile(files[0]);
+        });
+    }
+
+    if (fileInput) {
+        fileInput.addEventListener('change', function() {
+            if (fileInput.files.length > 0) uploadFile(fileInput.files[0]);
+        });
+    }
+
+    function uploadFile(file) {
+        hideStatus();
+        if (file.size > 5 * 1024 * 1024) {
+            showError('File quá lớn. Tối đa 5MB.');
+            return;
+        }
+        var allowed = ['image/jpeg','image/png','image/webp','image/gif'];
+        if (!allowed.includes(file.type)) {
+            showError('Chỉ chấp nhận: JPG, PNG, WEBP, GIF.');
+            return;
+        }
+
+        uploadZone.style.display = 'flex';
+        previewBox.style.display = 'none';
+
+        var fd = new FormData();
+        fd.append('file', file);
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Đang tải ảnh...';
+
+        fetch('/api/upload/image', {
+            method: 'POST',
+            body: fd
+        }).then(function(r) { return r.json(); })
+          .then(function(data) {
+              uploadZone.style.display = 'none';
+              previewBox.style.display = 'flex';
+              submitBtn.disabled = false;
+              submitBtn.textContent = '💾 Lưu';
+
+              if (data.success) {
+                  imageUrlInput.value = data.url;
+                  previewBox.style.backgroundImage = "url('" + data.url + "')";
+                  if (placeholder) placeholder.style.display = 'none';
+                  showSuccess();
+                  if (removeBtn) removeBtn.style.display = 'inline-flex';
+              } else {
+                  showError(data.error || 'Lỗi khi tải ảnh.');
+              }
+          })
+          .catch(function(err) {
+              uploadZone.style.display = 'none';
+              previewBox.style.display = 'flex';
+              submitBtn.disabled = false;
+              submitBtn.textContent = '💾 Lưu';
+              showError('Lỗi kết nối: ' + err.message);
+          });
+    }
+
+    if (removeBtn) {
+        removeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            imageUrlInput.value = '';
+            previewBox.style.backgroundImage = '';
+            if (placeholder) placeholder.style.display = 'flex';
+            removeBtn.style.display = 'none';
+            hideStatus();
+            fileInput.value = '';
+        });
+    }
+})();
+</script>
+{% endblock %}

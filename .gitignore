@@ -1,0 +1,45 @@
+# Environment & Secrets
+.env
+*.env.local
+.env.production
+*.key
+*.pem
+*.crt
+
+# Database
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+.pytest_cache/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Static uploads
+static/uploads/
+
+# OS
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Flask
+flask_session/
+.coverage
+htmlcov/
